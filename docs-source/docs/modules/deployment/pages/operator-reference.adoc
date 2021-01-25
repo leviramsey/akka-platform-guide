@@ -11,11 +11,11 @@ The https://lightbend.github.io/akka-operator-helm/akka-operator/crds/v1/akka-mi
 
 A fictive example of a https://lightbend.github.io/akka-operator-helm/api-reference/v1/shopping-cart-service-full-cr.yml[deployment descriptor (CR) containing all properties {tab-icon}, window="tab"].
 
-== Scale the number of Pods
+To apply customizations on top of a default deployment descriptor (CR) we suggest to leverage https://kustomize.io[Kustomize] built into `kubectl`.
+Prepare a folder called `base` containing the following files:
 
-The `replicas` field in the deployment descriptor defines the number of Pods that will be used.
-
-[source,yaml]
+The default deployment descriptor (CR):
+[source,yaml,title='shopping-cart-service.yml']
 ----
 apiVersion: akka.lightbend.com/v1
 kind: AkkaMicroservice
@@ -23,15 +23,56 @@ metadata:
   name: shopping-cart-service
 spec:
   image: <image>
-  replicas: 3
 ----
 
-You can scale the number of pods by applying the changed deployment descriptor. Kubernetes will add or remove Pods to adjust to the desired number.
+A basic reference to it for Kustomize:
+[source,yaml,title='kustomization.yml']
+----
+resources:
+- shopping-cart-service.yml
+----
+
+You can already deploy you default service by running:
 
 [source,shell script]
 ----
-kubectl apply -f kubernetes/shopping-cart-service-cr.yml
+kubectl apply -k base
 ----
+
+== Scale the number of Pods
+
+The `replicas` field in the deployment descriptor defines the number of Pods that will be used.
+
+Create a separate folder along `base` and call it `replicas` with this content:
+
+The actual customization:
+[source,yaml,title='replicas.yml']
+----
+apiVersion: akka.lightbend.com/v1
+kind: AkkaMicroservice
+metadata:
+  name: shopping-cart-service
+spec:
+  replicas: 3
+----
+
+And a reference to the customization:
+[source,yaml,title='kustomization.yml']
+----
+bases:
+- ../base
+patchesStrategicMerge:
+- replicas.yaml
+----
+
+You can scale the number of pods by applying the changed deployment descriptor by running:
+
+[source,shell script]
+----
+kubectl apply -k replicas
+----
+
+Kubernetes will add or remove Pods to adjust to the desired number.
 
 Another way of changing number of Pods is to use `kubectl scale` without changing the deployment descriptor:
 
@@ -44,20 +85,38 @@ kubectl scale --replicas=3 akkamicroservices shopping-cart-servics
 
 https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Resources for Containers {tab-icon}, window="tab"] can be defined in the Akka Microservices deployment descriptor.
 
-[source,yaml]
+Create a separate folder along `base` and call it `resources` with this content:
+
+The actual customization:
+[source,yaml,title='resources.yml']
 ----
 apiVersion: akka.lightbend.com/v1
 kind: AkkaMicroservice
 metadata:
   name: shopping-cart-service
 spec:
-  image: <image>
   resources:
-    limits:
-      memory: "2Gi"
-    requests:
-      memory: "2Gi"
-      cpu: "1"
+  limits:
+    memory: "2Gi"
+  requests:
+    memory: "2Gi"
+    cpu: "1"
+----
+
+And a reference to the customization:
+[source,yaml,title='kustomization.yml']
+----
+bases:
+- ../base
+patchesStrategicMerge:
+- resources.yaml
+----
+
+Apply the new resources and limits by running:
+
+[source,shell script]
+----
+kubectl apply -k resources
 ----
 
 For multi-threaded applications such as the JVM, the CFS scheduler limits are an ill fit, because they will restrict the allowed CPU usage even when more CPU cycles are available from the host system. This means your application may be starved of CPU time, but your system appears idle.
