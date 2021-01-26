@@ -65,7 +65,7 @@ patchesStrategicMerge:
 - replicas.yaml
 ----
 
-You can scale the number of pods by applying the changed deployment descriptor by running:
+Scale the number of pods by applying the overlaid deployment descriptor by running:
 
 [source,shell script]
 ----
