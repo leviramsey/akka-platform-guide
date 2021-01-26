@@ -72,7 +72,7 @@ You can scale the number of pods by applying the changed deployment descriptor b
 kubectl apply -k replicas
 ----
 
-Kubernetes will add or remove Pods to adjust to the desired number.
+Kubernetes will reconcile the number of Pods to the desired scale.
 
 Another way of changing number of Pods is to use `kubectl scale` without changing the deployment descriptor:
 
