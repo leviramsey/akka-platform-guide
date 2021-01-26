@@ -11,7 +11,7 @@ The https://lightbend.github.io/akka-operator-helm/akka-operator/crds/v1/akka-mi
 
 A fictive example of a https://lightbend.github.io/akka-operator-helm/api-reference/v1/shopping-cart-service-full-cr.yml[deployment descriptor (CR) containing all properties {tab-icon}, window="tab"].
 
-To apply customizations on top of a default deployment descriptor (CR) we suggest to leverage https://kustomize.io[Kustomize] built into `kubectl`.
+To apply customizations on top of a default deployment descriptor (CR) we recommend using https://kubectl.docs.kubernetes.io/guides/introduction/kustomize/[Kustomize], built into `kubectl`.
 Prepare a folder called `base` containing the following files:
 
 The default deployment descriptor (CR):
