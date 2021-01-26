@@ -32,7 +32,7 @@ resources:
 - shopping-cart-service.yml
 ----
 
-You can already deploy you default service by running:
+Deploy your default service by running:
 
 [source,shell script]
 ----
